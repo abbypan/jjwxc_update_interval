@@ -2,26 +2,27 @@
 //
 // ==UserScript==
 // @name          jjwxc-update-interval
-// @namespace     http://abbypan.blogspot.com/
-// @description   绿晋江(http://www.jjwxc.net)作品中章节的更新间隔统计图
-// @copyright     2009+, Abby Pan (http://abbypan.blogspot.com/)
+// @namespace     http://abbypan.github.com/
+// @description   绿晋江( http://www.jjwxc.net )作品中章节的更新间隔统计图
+// @copyright     2009+, Abby Pan (http://abbypan.github.com/)
 // @author        Abby Pan (abbypan@gmail.com)
-// @version       0.3
-// @homepage      http://abbypan.blogspot.com/
+// @version       0.4
+// @homepage      http://abbypan.github.com/
 // @include       http://www.jjwxc.net/onebook.php*
 // @exclude       http://www.jjwxc.net/onebook.php*chapterid=*
+// @grant         none
 // ==/UserScript==
 //
 // --------------------------------------------------------------------
 
 //找到图片插入点，就是搜索关键字的后面
-var insert_path = "/html/body/table[2]/tbody/tr/td/div[3]";
+var insert_path = "/html/body/table/tbody/tr/td/div[3]";
 
 //进度
-var process_path = "/html/body/table[2]/tbody/tr/td[3]/div[2]/ul/li[4]";
+var process_path = "/html/body/table/tbody/tr/td[3]/div[2]/ul/li[4]";
 
 //更新时间间隔
-var update_time_path = "/html/body/table[3]/tbody/tr";
+var update_time_path = "/html/body/table[2]/tbody/tr";
 
 plot_update_time(insert_path, process_path,update_time_path);
 
