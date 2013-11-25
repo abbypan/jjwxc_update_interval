@@ -5,11 +5,11 @@ jjwxc_update_interval
 
 功能 : 绿晋江http://www.jjwxc.net 作品中章节的更新间隔统计图
 
-饼图
+章节更新统计
 
-![pie.png](pie.png)
+![stat.png](stat.png)
 
-柱状图
+章节更新间隔
 
-![bar.png](bar.png)
+![chap.png](chap.png)
 

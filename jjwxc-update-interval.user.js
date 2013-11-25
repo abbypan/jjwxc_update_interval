@@ -6,7 +6,7 @@
 // @description   绿晋江( http://www.jjwxc.net )作品中章节的更新间隔统计图
 // @copyright     2009+, Abby Pan (http://abbypan.github.com/)
 // @author        Abby Pan (abbypan@gmail.com)
-// @version       0.4
+// @version       0.5
 // @homepage      http://abbypan.github.com/
 // @include       http://www.jjwxc.net/onebook.php*
 // @exclude       http://www.jjwxc.net/onebook.php*chapterid=*
@@ -26,171 +26,173 @@ var update_time_path = "/html/body/table[2]/tbody/tr";
 
 plot_update_time(insert_path, process_path,update_time_path);
 
+
 function plot_update_time(insert_path, process_path){
 
 	var link = document.evaluate(insert_path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE,null);
 	link=link.singleNodeValue;
 
-	//统计信息
 	var update_time = extract_update_time(update_time_path);
 	var result = calc_update_time_interval(update_time, process_path);
 
 	//最长更新间隔
-	var max_int = create_element_max_interval(result['max_interval']);
-	link.parentNode.insertBefore(max_int,link.nextSibling);
+    var max_int = create_text_element('max_interval', '  最长更新间隔：'+result['max_interval']+'天');
+ins_element_after_node(link, max_int);
 
 	//最后一次更新距今
-	var last_t = create_element_last_time_diff(result['last_time_diff']);
-	link.parentNode.insertBefore(last_t,link.nextSibling);
-
-	//创建一个画统计图按钮
-	var pie_url=google_pie_url(result['type_stat']);
-	var bar_url = google_bar_url(result);
-	var btn_p = create_element_chart_btn(pie_url, bar_url);
-	link.parentNode.insertBefore(btn_p,link.nextSibling);
-
-	//显示或隐藏柱状图
-	var check_bar = create_element_bar_btn();
-	link.parentNode.insertBefore(check_bar,link.nextSibling);
-	var bar = create_element_bar_chart(bar_url);
-	link.parentNode.insertBefore(bar,link.nextSibling);
+    var last_t = create_text_element('last_time_diff', '  最后一次更新距今：'+result['last_time_diff']+'天');
+ins_element_after_node(link, last_t);
 
 
-	//显示或隐藏饼图
-	var check_pie = create_element_pie_btn();
-	link.parentNode.insertBefore(check_pie,link.nextSibling);
-	var pie = create_element_pie_chart(pie_url);
-	link.parentNode.insertBefore(pie,link.nextSibling);
+    var chap_id = 'chap_interval';
+    var chap_text = '章节更新间隔';
+	var chap_url = chap_interval_url(result);
+	var chap_init_btn = create_chart_init_btn(chap_id, chap_text,  chap_url);
+ins_element_after_node(link, chap_init_btn);
+    var chap_btn = create_chart_btn(chap_id, chap_text);
+ins_element_after_node(link, chap_btn);
+    var chap_div = create_chart_div(chap_id, chap_url);
+ins_element_after_node(link, chap_div);
 
+
+    var stat_id = 'stat_interval';
+    var stat_text = '统计更新间隔';
+    var stat_url = stat_interval_url(result["type_stat"]);
+    var stat_init_btn = create_chart_init_btn(stat_id, stat_text,  stat_url);
+ins_element_after_node(link, stat_init_btn);
+    var stat_btn = create_chart_btn(stat_id, stat_text);
+ins_element_after_node(link, stat_btn);
+    var stat_div = create_chart_div(stat_id, stat_url);
+ins_element_after_node(link, stat_div);
+
+    var update_p = create_text_element('update_interval', '  --- ');
+	ins_element_after_node(link, update_p);
 }
 
-function create_element_last_time_diff(last_time_diff){
-	var last_t_text = document.createTextNode('  最后一次更新距今：'+last_time_diff+'天');
+function ins_element_after_node(node, element){
+	node.parentNode.insertBefore(element,node.nextSibling);
+}
+
+function create_text_element(id, text){
+	var last_t_text = document.createTextNode(text);
 	var last_t=document.createElement("p");
-	last_t.setAttribute('id', 'last_time_diff');
+	last_t.setAttribute('id', id);
 	last_t.appendChild(last_t_text);
 	return last_t;
 }
 
-function create_element_max_interval(max_interval) {
-	var max_int_text = document.createTextNode('  最长更新间隔：'+max_interval+'天');
-	var max_int=document.createElement("p");
-	max_int.setAttribute('id', 'max_interval');
-	max_int.appendChild(max_int_text);
-	return max_int;
-}
-
-function create_element_chart_btn(pie_url,bar_url) {
+function create_chart_init_btn(id, text, img_url) {
 	var	btn=document.createElement("input");
 	btn.setAttribute('type','button');
-	btn.setAttribute('id','btn_graph');
-	btn.setAttribute('value','画章节更新时间间隔的柱状图及饼图');
+	btn.setAttribute('id', id + '_init_btn');
+	btn.setAttribute('value','查看 ' + text);
 
-	var btn_func = 'javascript:{'
-		+		'var bar_div = document.getElementById("bar_graph_url"); var bar =document.createElement("img");bar.setAttribute("style","max-width:750px"); bar.setAttribute("id","time_bar_graph"); bar.setAttribute("src", "'+bar_url+'" ); bar_div.appendChild(bar); document.getElementById("check_bar_graph").setAttribute("style","display:visable;"); document.getElementById("check_bar_graph").setAttribute("style","display:visable;");bar.scrollIntoView(true);'
-			+		'var pie_div = document.getElementById("pie_graph_url"); var pie =document.createElement("img");pie.setAttribute("style","max-width:750px"); pie.setAttribute("id","time_pie_graph"); pie.setAttribute("src", "'+pie_url+'" ); pie_div.appendChild(pie); document.getElementById("check_bar_graph").setAttribute("style","display:visable;"); document.getElementById("check_pie_graph").setAttribute("style","display:visable;");pie.scrollIntoView(true);'
-			+			'this.parentNode.removeChild(this);};';
-	btn.setAttribute('onclick',btn_func);
+	var btn_func = 'javascript:{' +		
+        'var div = document.getElementById("'+id+'"); '+
+
+            'var chart =document.createElement("img");chart.setAttribute("style","max-width:750px"); ' + 
+            'chart.setAttribute("id","'+ id +'_chart");chart.setAttribute("style","display:visable;"); '+
+            'chart.setAttribute("src", "'+img_url+'" ); '+
+            'div.appendChild(chart); chart.scrollIntoView(true);' +
+
+            'var  chart_btn = document.getElementById("'+id+'_btn");' +
+            'chart_btn.setAttribute("style","display:visable;");' +
+
+            'this.parentNode.removeChild(this);};';
+    btn.setAttribute('onclick',btn_func);
 
 	var btn_p=document.createElement("p");
 	btn_p.appendChild(btn);
 	return btn_p;
 }
 
-function create_element_bar_btn() {
+function create_chart_btn(id, text) {
 	var check_bar=document.createElement("input");
 	check_bar.setAttribute('type','button');
 	check_bar.setAttribute('style','display:none');
-	check_bar.setAttribute('id','check_bar_graph');
-	check_bar.setAttribute('value','隐藏柱状图');
-	check_bar.setAttribute('onclick','javascript:{ var  bar = document.getElementById("bar_graph"); var style = bar.getAttribute("style");if(style.match(/none/)){ bar.setAttribute("style","display:block !important;"); this.setAttribute("value","隐藏柱状图");bar.scrollIntoView(true);}else{ bar.setAttribute("style","display:none !important;"); this.setAttribute("value","显示柱状图");document.all.last_time_diff.scrollIntoView(true);} }');
+	check_bar.setAttribute('id',id+'_btn');
+	check_bar.setAttribute('value','隐藏' + text);
+	check_bar.setAttribute('onclick','javascript:{ var  bar = document.getElementById("' + id + '");'+
+        'var style = bar.getAttribute("style");if(style.match(/none/)){ ' +
+            'bar.setAttribute("style","display:block !important;"); '+
+        'this.setAttribute("value","隐藏' + text + '");document.getElementById("update_interval").scrollIntoView(true);}'+
+        'else{ bar.setAttribute("style","display:none !important;"); '+
+            'this.setAttribute("value","显示'+ text+'");'+
+        'document.getElementById("update_interval").scrollIntoView(true);} }');
 	return check_bar;
 }
 
-function create_element_bar_chart(bar_url) {
-	var bar =document.createElement("div");
-	bar.setAttribute('id','bar_graph');
-	bar.setAttribute("style","display:block !important;"); 
-	var bar_a =document.createElement("a");
-	bar_a.setAttribute('id','bar_graph_url');
-	bar_a.setAttribute('href',bar_url);
-	bar.appendChild(bar_a);
-	return bar;
+function create_chart_div(id){
+	var chap_stat =document.createElement("div");
+	chap_stat.setAttribute('id',id);
+	chap_stat.setAttribute("style","display:block !important;"); 
+	return chap_stat;
 }
 
-function create_element_pie_btn() {
-	var check_pie=document.createElement("input");
-	check_pie.setAttribute('type','button');
-	check_pie.setAttribute('style','display:none');
-	check_pie.setAttribute('id','check_pie_graph');
-	check_pie.setAttribute('value','隐藏饼图');
-	check_pie.setAttribute('onclick','javascript:{ var  pie = document.getElementById("pie_graph"); var style = pie.getAttribute("style");if(style.match(/none/)){ pie.setAttribute("style","display:block !important;"); this.setAttribute("value","隐藏饼图");pie.scrollIntoView(true);}else{ pie.setAttribute("style","display:none !important;"); this.setAttribute("value","显示饼图");document.all.last_time_diff.scrollIntoView(true);} }');
-	return check_pie;
+function google_chart_url(r) {
+    var x = [];
+    for(var t in r){
+        var c = t + '=' + r[t];
+        x.push(c);
+    }
+    var res = 'http://chart.apis.google.com/chart?' + x.join('&');
+    return res;
 }
 
-function create_element_pie_chart(pie_url) {
-	var pie =document.createElement("div");
-	pie.setAttribute('id','pie_graph');
-	pie.setAttribute("style","display:block !important;"); 
-	var pie_a =document.createElement("a");
-	pie_a.setAttribute('id','pie_graph_url');
-	pie_a.setAttribute('href',pie_url);
-	pie.appendChild(pie_a);
-	return pie;
-}
-
-function google_bar_url(r)
+function stat_interval_url(r)
 {
-	var cht = 'bvg';
-	var chs= '750x300';
-	var chdl = r['indexs'].join('|');
-	var chd = 't:' + r['intervals'].join(',');
-	var chco = r['colors'].join('|');
-	var chds=r['max_interval'];
-	var title = encodeURI("章节更新间隔柱状图");
+    var type = [ '日更', '周更', '半月更', '月更', 
+        '季更', '半年更', '年更', '太阳黑子活动周期更'];
+    var color = [];
+    var cnt = [];
+    var max_cnt = 0;
+    for(var i in type){
+        var t = type[i];
+        var c = r[t] || 0;
+        if(max_cnt < c) max_cnt=c;
+        cnt.push(c);
+        color.push(specify_type_color(t));
+    }
 
-	var bar_url='http://chart.apis.google.com/chart?'
-		+ 'cht=' + cht
-		+ '&chs=' + chs
-		+ '&chds=0,' + chds 
-		+ '&chxt=x'
-		+ '&chxl=0:|' + chdl
-		+ '&chd=' + chd
-		+ '&chco=' + chco 
-		+ '&chtt=' + title
-		+ '&chbh=r,.7'
-		+'&chm=N,FF0000,-1,,12'
-		;
+    var res = {};
+    res["cht"] = 'bvg';
+    res["chs"]= '750x250';
+	res["chxl"]='0:|' + encodeURI(type.join('|'));
+    res["chd"] = 't:' + cnt.join(',');
+    res["chco"] = color.join('|');
+    res["chxt"] = 'x';
+
+    var chds=max_cnt + 2;
+    res["chds"]='0,' + chds;
+    res["chtt"] = encodeURI("章节更新统计柱状图");
+    res["chbh"]='r,.7';
+    res["chm"]='N,FF0000,-1,,12';
+
+    var bar_url = google_chart_url(res);
+    return bar_url;
+}
+
+function chap_interval_url(r)
+{
+    var res = {};
+	res["cht"] = 'bvg';
+	res["chs"]= '750x300';
+	res["chxl"]='0:|' + r['indexs'].join('|');
+	res["chd"]='t:'+r['intervals'].join(',');
+	res["chco"]=r['colors'].join('|');
+    res["chxt"] = 'x';
+	res["chds"]=parseInt(r['max_interval'])+3;
+    res["chds"]='0,' + res["chds"];
+	res["chtt"]=encodeURI("章节更新间隔柱状图");
+    res["chbh"]='r,.7';
+    res["chm"]='N,FF0000,-1,,12';
+
+    var bar_url = google_chart_url(res);
 	return bar_url;
 }
 
-function google_pie_url(r){
-	var x_data=[];
-	var y_data=[];
-	var label_data=[];
-	var color_data=[];
-	for(var k in r){
-		var n = r[k];
-		if(n==undefined) continue;
-		var t=encodeURI(k);
-		label_data.push(t);
-		x_data.push(t+" : "+n);
-		y_data.push(n);
-		var c = specify_type_color(k);
-		color_data.push(c);
-	}
-	if(x_data.length === 0) return "";
-	var label = label_data.join('%7C');
-	var x = x_data.join('%7C');
-	var y = y_data.join(',');
-	var chco = color_data.join(',');
-	var title = encodeURI("章节更新间隔饼图");
-	var pie_url='http://chart.apis.google.com/chart?chd=t:' + y
-		+ '&cht=p3&chtt='+title
-		+'&chl=' + x +'&chdl='+label
-		+'&chdlp=b&chts=000000,18&chs=750x300&chco='+chco; 
-	return pie_url;
-}
+
+
 
 function calc_update_time_interval(update_time, process_path){
 	//计算更新间隔
@@ -263,15 +265,15 @@ function check_update_type(intervals) {
 
 function specify_type_color(type) {
 	if(type == '错误') return 'ffffff';	
-	if(type == '日更') return 'ef1c21';
-	if(type == '周更') return 'f76521';
-	if(type == '半月更') return 'ffe3c6';
-	if(type == '月更') return 'fff300';
-	if(type == '季更') return '00aa9c';
-	if(type == '半年更') return '0071bd';
-	if(type == '年更') return '21459c';
-	if(type == '太阳黑子活动周期更') return 'ff0ff0';
-	return '000000';
+	if(type == '日更') return 'a3d900';
+	if(type == '周更') return '48c0a3';
+	if(type == '半月更') return '44cef6';
+	if(type == '月更') return 'fff143';
+	if(type == '季更') return 'f9906f';
+	if(type == '半年更') return 'c89b40';
+	if(type == '年更') return '60281e';
+	if(type == '太阳黑子活动周期更') return '000000';
+	return 'ff0ff0';
 }
 
 function extract_update_time(update_time_path){
