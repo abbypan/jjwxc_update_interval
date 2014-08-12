@@ -1,10 +1,10 @@
 // --------------------------------------------------------------------
 //
 // ==UserScript==
-// @name          jjwxc-update-interval
-// @namespace     http://abbypan.github.com/
+// @name          jjwxc_update_interval
+// @namespace     http://abbypan.github.io/
 // @description   绿晋江( http://www.jjwxc.net )作品中章节的更新间隔统计图
-// @copyright     2009+, Abby Pan (http://abbypan.github.com/)
+// @copyright     2009+, Abby Pan (http://abbypan.github.io/)
 // @author        Abby Pan (abbypan@gmail.com)
 // @version       0.5
 // @homepage      http://abbypan.github.com/
@@ -22,7 +22,7 @@ var insert_path = "/html/body/table/tbody/tr/td/div[3]";
 var process_path = "/html/body/table/tbody/tr/td[3]/div[2]/ul/li[4]";
 
 //更新时间间隔
-var update_time_path = "/html/body/table[2]/tbody/tr";
+var update_time_path = '//tr[@itemprop="chapter"]';
 
 plot_update_time(insert_path, process_path,update_time_path);
 
